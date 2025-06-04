@@ -255,7 +255,7 @@ app.get('/api/student/:hex', async (req, res) => {
       return res.status(404).json({ error: 'Student not found' });
     }
     //remove hash
-    const { hash , mother_name , dob ,registration_date , ...student } = result.rows[0];
+    const { hash , mother_name ,registration_date , ...student } = result.rows[0];
 
     res.status(200).json(student);
   } catch (err) {
