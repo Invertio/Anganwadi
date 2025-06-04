@@ -4,19 +4,18 @@ import { QRCodeSVG } from 'qrcode.react';
 import { FaDownload } from 'react-icons/fa';
 import { saveAs } from 'file-saver';
 
- function StudentDashboard() {
+function StudentDashboard() {
   const [students, setStudents] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     father_name: '',
     mother_name: '',
-    age: '',
     gender: '',
-    weight: '',
     dob: '',
     area: '',
     pincode: '',
-    class: '',
+    district: '', 
+    state: '',     
   });
   const [showForm, setShowForm] = useState(false);
   const [qrModal, setQrModal] = useState({
@@ -50,19 +49,14 @@ import { saveAs } from 'file-saver';
       !formData.name ||
       !formData.father_name ||
       !formData.mother_name ||
-      !formData.age ||
       !formData.gender ||
       !formData.dob ||
       !formData.area ||
       !formData.pincode ||
-      !formData.class
+      !formData.district ||  // New validation
+      !formData.state       // New validation
     ) {
       alert('Please fill out all required fields');
-      return;
-    }
-
-    if (formData.weight && (isNaN(formData.weight) || Number(formData.weight) <= 0)) {
-      alert('Please enter a valid positive number for weight or leave it empty');
       return;
     }
 
@@ -74,13 +68,12 @@ import { saveAs } from 'file-saver';
         name: '',
         father_name: '',
         mother_name: '',
-        age: '',
         gender: '',
-        weight: '',
         dob: '',
         area: '',
         pincode: '',
-        class: '',
+        district: '',  // Reset new field
+        state: '',     // Reset new field
       });
       setShowForm(false);
     } catch (error) {
@@ -93,13 +86,12 @@ import { saveAs } from 'file-saver';
     setShowForm(!showForm);
   };
 
-
- const handleGenerateQrCode = (student) => {
-  setQrModal({
-    open: true,
-    student,
-  });
-};
+  const handleGenerateQrCode = (student) => {
+    setQrModal({
+      open: true,
+      student,
+    });
+  };
 
   const downloadQRCode = () => {
     if (!qrModal.student) return;
@@ -169,19 +161,7 @@ import { saveAs } from 'file-saver';
             />
           </div>
           
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-gray-600">Age</label>
-            <input
-              type="number"
-              name="age"
-              className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={formData.age}
-              onChange={handleChange}
-              min="3"
-              max="25"
-              required
-            />
-          </div>
+          
           
           <div className="space-y-1">
             <label className="block text-xs font-medium text-gray-600">Date of Birth</label>
@@ -212,31 +192,6 @@ import { saveAs } from 'file-saver';
           </div>
           
           <div className="space-y-1">
-            <label className="block text-xs font-medium text-gray-600">Weight (kg)</label>
-            <input
-              type="number"
-              name="weight"
-              className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={formData.weight}
-              onChange={handleChange}
-              step="0.1"
-              min="0"
-            />
-          </div>
-          
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-gray-600">Class/Grade</label>
-            <input
-              type="text"
-              name="class"
-              className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={formData.class}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <div className="space-y-1">
             <label className="block text-xs font-medium text-gray-600">Area/Locality</label>
             <input
               type="text"
@@ -257,6 +212,30 @@ import { saveAs } from 'file-saver';
               value={formData.pincode}
               onChange={handleChange}
               pattern="[0-9]{6}"
+              required
+            />
+          </div>
+          
+          <div className="space-y-1">
+            <label className="block text-xs font-medium text-gray-600">District</label>
+            <input
+              type="text"
+              name="district"
+              className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={formData.district}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="space-y-1">
+            <label className="block text-xs font-medium text-gray-600">State</label>
+            <input
+              type="text"
+              name="state"
+              className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={formData.state}
+              onChange={handleChange}
               required
             />
           </div>
@@ -293,11 +272,10 @@ import { saveAs } from 'file-saver';
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Name</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Father</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Age</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Class</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Gender</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Weight</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Area</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">District</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">State</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Qr code</th>
                 </tr>
               </thead>
@@ -306,11 +284,10 @@ import { saveAs } from 'file-saver';
                   <tr key={student.student_id} className="hover:bg-gray-50">
                     <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.name}</td>
                     <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.father_name}</td>
-                    <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.age}</td>
-                    <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.class}</td>
                     <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.gender}</td>
-                    <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.weight || '-'}</td>
                     <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.area}</td>
+                    <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.district}</td>
+                    <td className="px-4 py-2 whitespace-nowrap text-gray-900">{student.state}</td>
                     <td className="px-4 py-2 whitespace-nowrap text-gray-900">
                       <button 
                         onClick={() => handleGenerateQrCode(student)}
@@ -385,6 +362,5 @@ import { saveAs } from 'file-saver';
     </div>
   );
 }
-
 
 export default StudentDashboard;
