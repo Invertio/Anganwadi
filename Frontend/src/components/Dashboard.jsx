@@ -100,7 +100,7 @@ const Dashboard = () => {
           )}
         </div>
         
-        {/* User info at bottom (optional) */}
+        {/* User info at bottom  */}
         <div className="pt-4 border-t border-gray-700">
           <p className="text-gray-300 text-sm">
             Logged in as: {localStorage.getItem('name')}

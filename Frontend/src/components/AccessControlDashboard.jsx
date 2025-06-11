@@ -6,6 +6,14 @@ const SuperAdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'admin',
+    access: []
+  });
 
   const token = localStorage.getItem('jwtToken');
 
@@ -56,10 +64,80 @@ const SuperAdminDashboard = () => {
     }
   };
 
+  const handleFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      const newAccess = checked
+        ? [...formData.access, name]
+        : formData.access.filter(a => a !== name);
+      
+      setFormData(prev => ({
+        ...prev,
+        access: newAccess
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.name || !formData.email || !formData.password) {
+      setError('Please fill all required fields');
+      return;
+    }
+
+    try {
+      await axios.post('https://anganwadi.onrender.com/api/register', formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setSuccess('Admin registered successfully');
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        role: 'admin',
+        access: []
+      });
+      setShowForm(false);
+      fetchAdmins();
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to register admin');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
+  const toggleForm = () => {
+    setShowForm(!showForm);
+    setError('');
+    setSuccess('');
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Admin Access Management</h1>
-      <p className="text-gray-600 mb-6">Super Admin Dashboard - Manage admin dashboard access</p>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Admin Access Management</h1>
+          <p className="text-gray-600">Super Admin Dashboard - Manage admin dashboard access</p>
+        </div>
+        <button
+          onClick={toggleForm}
+          className={`px-4 py-2 text-sm rounded-md font-medium ${
+            showForm 
+              ? 'bg-gray-500 hover:bg-gray-600 text-white'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
+        >
+          {showForm ? 'Cancel' : '+ New Admin'}
+        </button>
+      </div>
       
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-4 rounded">
@@ -71,6 +149,139 @@ const SuperAdminDashboard = () => {
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 mb-4 rounded">
           {success}
         </div>
+      )}
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Full Name*</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Email*</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Password*</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Role*</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
+              >
+                <option value="admin">Admin</option>
+                <option value="super-admin">Super Admin</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2 space-y-3">
+              <label className="block text-sm font-medium text-gray-700">Access Permissions</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="anganwadi"
+                    name="anganwadi"
+                    checked={formData.access.includes('anganwadi')}
+                    onChange={handleFormChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="anganwadi" className="ml-2 block text-sm text-gray-700">
+                    Anganwadi
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="district"
+                    name="district"
+                    checked={formData.access.includes('district')}
+                    onChange={handleFormChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="district" className="ml-2 block text-sm text-gray-700">
+                    District
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="state"
+                    name="state"
+                    checked={formData.access.includes('state')}
+                    onChange={handleFormChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="state" className="ml-2 block text-sm text-gray-700">
+                    State
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="student_registration"
+                    name="student_registration"
+                    checked={formData.access.includes('student_registration')}
+                    onChange={handleFormChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="student_registration" className="ml-2 block text-sm text-gray-700">
+                    Student Registration
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={toggleForm}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Register Admin
+            </button>
+          </div>
+        </form>
       )}
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">
