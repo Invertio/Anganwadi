@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const port = 3000;
-const pool = require('./connection')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors= require('cors');
@@ -9,6 +8,8 @@ const crypto = require('crypto');
 const bodyParser = require('body-parser');
 app.use(bodyParser.json({ limit: '50mb' })); 
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+const {pool ,connectDB} = require('./connection.js')
+connectDB()
 
 const JWT_SECRET = 'drlgvjiruervburhdnwndvfuhdsjkndvufsio5856r84gvefscdgtyvhb';
 
@@ -29,10 +30,11 @@ const superAdminCheck = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    
 
     
     // Check if user has superadmin role
-    if (decoded.role !== 'Super-Admin') {
+    if (decoded.role !== 'super-admin') {
       return res.status(403).send('Super Admin access required');
     }
     
@@ -101,12 +103,17 @@ app.put('/api/admins/:id/access', superAdminCheck, async (req, res) => {
 
 
 //register admins
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', superAdminCheck ,  async (req, res) => {
   try {
+        console.log(req.body)
+
     const { name, email, password, access , role} = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    if(role === 'super-admin'){
+      access.push('accesscontrol');
+    }
+  
     const query = `
       INSERT INTO users (name, email, password, access ,role)
       VALUES ($1, $2, $3, $4 , $5)
