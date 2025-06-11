@@ -11,10 +11,11 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 const {pool ,connectDB} = require('./connection.js')
 connectDB()
 
-const JWT_SECRET = 'drlgvjiruervburhdnwndvfuhdsjkndvufsio5856r84gvefscdgtyvhb';
 
-// app.use(express.json())
+const JWT_SECRET = 'drlgvjiruervburhdnwndvfuhdsjkndvufsio5856r84gvefscdgtyvhb';
 app.use(cors())
+app.use(express.json())
+
 app.get('/', (req, res) => {
     res.send('Working');
 });
